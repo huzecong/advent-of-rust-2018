@@ -1,4 +1,4 @@
-###Day 15: Beverage Bandits
+### Day 15: Beverage Bandits
 
 A simulation problem. Don't get frightened of the length of the statement, just do as it says.
 

@@ -1,4 +1,4 @@
-###Day 3: No Matter How You Slice It
+### Day 3: No Matter How You Slice It
 
 The most straightforward approach is to create a 2D array, with each element representing the number of "claims" (rectangles) covering the square.
 
