@@ -1,5 +1,5 @@
 # Advent of Code 2018
-Solutions to Advent of Code 2018, mostly in Rust.
+Solutions to [Advent of Code 2018](https://adventofcode.com/2018), mostly in Rust as a practice.
 
 For certain problems, solutions in other languages are also provided, either because it has a much cleaner (or smart) implementation, or that I found coding in Rust too hard and too slow.
 
