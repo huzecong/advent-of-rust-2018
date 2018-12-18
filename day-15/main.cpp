@@ -15,6 +15,12 @@ char map[W][W], orig_map[W][W];
 int hp[W][W], R, C, dist[W][W];
 bool moved[W][W];
 
+void print() {
+    for (int i = 1; i <= R; ++i)
+        printf("%s\n", map[i] + 1);
+    printf("\n");
+}
+
 inline char get_target_type(char ch) {
     if (ch == 'G') return 'E';
     return 'G';
@@ -24,7 +30,7 @@ inline bool valid(int x, int y) {
     return x > 0 && x <= R && y > 0 && y <= C;
 }
 
-void floodfill(int x, int y, char forbid) {
+void floodfill(int x, int y) {
     queue<pair<int, int>> q;
     q.emplace(x, y);
     memset(dist, 0x3f, sizeof dist);
@@ -34,10 +40,10 @@ void floodfill(int x, int y, char forbid) {
         q.pop();
         for (auto d : dir) {
             int nx = x + d[0], ny = y + d[1];
-            // okay to pass through targets but not allies
-            if (valid(nx, ny) && map[nx][ny] != '#' && map[nx][ny] != forbid && dist[nx][ny] == INF) {
+            if (valid(nx, ny) && map[nx][ny] != '#' && dist[nx][ny] == INF) {
                 dist[nx][ny] = dist[x][y] + 1;
-                q.emplace(nx, ny);
+                // only expand for spaces
+                if (map[nx][ny] == '.') q.emplace(nx, ny);
             }
         }
     }
@@ -56,6 +62,7 @@ bool elf_died = false;  // bad design, but convenient
 
 void exec_die(int x, int y) {
     assert(map[x][y] == 'G' || map[x][y] == 'E');
+    assert(hp[x][y] <= 0);
     if (map[x][y] == 'E') elf_died = true;
     map[x][y] = '.';
     hp[x][y] = 0;
@@ -75,39 +82,43 @@ bool exec_turn(int x, int y, int atk) {
     char target_type = get_target_type(map[x][y]);
 
     if (!is_adjacent(x, y, target_type)) {
-        floodfill(x, y, map[x][y]);
+        floodfill(x, y);
         int best_val = INF, tx = -1, ty = -1;
         bool found = false;
         for (int i = 1; i <= R; ++i)
             for (int j = 1; j <= C; ++j)
-                if (map[i][j] == '.' && is_adjacent(i, j, target_type)) {
+                if (map[i][j] == target_type) {
                     found = true;
+                } else if (map[i][j] == '.' && is_adjacent(i, j, target_type)) {
+                    // checking here is not correct: it could be the case when all enemies are surrounded by allies
+//                    found = true;
                     if (dist[i][j] < best_val) {
                         best_val = dist[i][j];
                         tx = i, ty = j;
                     }
                 }
-        if (!found) return false;
-        if (best_val == INF) return true;
-
-        if (best_val > 0) {
-            // need to move
-            floodfill(tx, ty, map[x][y]);
-            best_val = INF;
-            int mx = -1, my = -1;
-            for (auto d : dir) {
-                int nx = x + d[0], ny = y + d[1];
-                if (valid(nx, ny) && map[nx][ny] == '.' && dist[nx][ny] < best_val) {
-                    best_val = dist[nx][ny];
-                    mx = nx, my = ny;
-                }
-            }
-            assert(mx != -1 && my != -1);
-            exec_move(x, y, mx, my);
-            x = mx, y = my;
+        if (!found) {
+//            print();
+            return false;  // no targets on board, combat ends
         }
-        moved[x][y] = true;
+        if (best_val == INF) return true;  // no reachable targets, unit does nothing
+
+        // need to move
+        floodfill(tx, ty);
+        best_val = INF;
+        int mx = -1, my = -1;
+        for (auto d : dir) {
+            int nx = x + d[0], ny = y + d[1];
+            if (valid(nx, ny) && map[nx][ny] == '.' && dist[nx][ny] < best_val) {
+                best_val = dist[nx][ny];
+                mx = nx, my = ny;
+            }
+        }
+        assert(mx != -1 && my != -1);
+        exec_move(x, y, mx, my);
+        x = mx, y = my;
     }
+    moved[x][y] = true;
 
     // find target to attack
     int best_val = INF;
@@ -127,13 +138,7 @@ bool exec_turn(int x, int y, int atk) {
     return true;
 }
 
-void print() {
-    for (int i = 1; i <= R; ++i)
-        printf("%s\n", map[i] + 1);
-    printf("\n");
-}
-
-int perform_check(int elf_atk) {
+int perform_check(int elf_atk, bool ignore_death = false) {
     memcpy(map, orig_map, sizeof map);
     for (int i = 1; i <= R; ++i) {
         for (int j = 1; j <= C; ++j)
@@ -153,7 +158,7 @@ int perform_check(int elf_atk) {
                 if (!moved[i][j] && (map[i][j] == 'G' || map[i][j] == 'E')) {
                     int atk = (map[i][j] == 'G') ? 3 : elf_atk;
                     end |= !exec_turn(i, j, atk);
-                    if (elf_died) return -1;
+                    if (!ignore_death && elf_died) return -1;
                 }
         if (end) break;
         ++rounds;
@@ -163,8 +168,8 @@ int perform_check(int elf_atk) {
         for (int j = 1; j <= C; ++j)
             total_hp += hp[i][j];
     }
-    printf("%d %d\n", rounds, total_hp);
-    print();
+//    print();
+//    printf("%d %d\n", rounds, total_hp);
     return rounds * total_hp;
 }
 
@@ -175,13 +180,18 @@ int main() {
     --R;
     C = static_cast<int>(strlen(orig_map[1] + 1));
 
-    printf("%d\n", perform_check(3));
+    // Part 1
+    printf("%d\n", perform_check(3, true));
 
+    // Part 2
     for (int atk = 4; ; ++atk) {
         int result = perform_check(atk);
         if (result != -1) {
-            printf("%d %d\n", atk, result);
+//            printf("%d\n", atk);
+            printf("%d\n", result);
             break;
         }
     }
+
+    return 0;
 }
