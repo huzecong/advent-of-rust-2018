@@ -90,6 +90,7 @@ fn main() {
     let input = fs::read_to_string("input.txt").ok().unwrap();
     let mut stars = input.lines().map(parse).collect::<Vec<_>>();
 
+    // Parts 1 & 2
     let mut min_bounding_area = box_area(compute_bounding_box(&stars));
     let mut iters = 0;
     loop {
