@@ -9,9 +9,9 @@ const int dir[4][2] = {{-1, 0},
                        {0,  1},
                        {1,  0}};  // U, L, R, D
 
-const int K = 161;
-const int R = 7;
-const int C = 701;
+const int K = 40;
+const int R = 8 + K;
+const int C = 701 + K;
 int map[R][C];
 int erosion[R][C];
 int depth, n, m;
@@ -38,9 +38,9 @@ int main() {
         erosion[0][j] = (int)(((long long)j * 48271 + depth) % 20183);
     for (int i = 1; i < R; ++i)
         for (int j = 1; j < C; ++j) {
-            erosion[i][j] = (int)(((long long)erosion[i - 1][j] * erosion[i][j - 1] + depth) % 20183);
+            if (i == n && j == m) erosion[n][m] = depth % 20183;
+            else erosion[i][j] = (int)(((long long)erosion[i - 1][j] * erosion[i][j - 1] + depth) % 20183);
         }
-    erosion[n][m] = depth % 20183;
     for (int i = 0; i < R; ++i)
         for (int j = 0; j < C; ++j)
             map[i][j] = erosion[i][j] % 3;
