@@ -1,6 +1,6 @@
-use std::cmp::Ordering;
-use std::collections::BinaryHeap;
 use std::fs;
+
+use utils::MinHeap;
 
 struct Edge(usize, usize);
 
@@ -8,43 +8,6 @@ fn parse(s: &str) -> Edge {
     let parts = s.trim().split_whitespace().collect::<Vec<_>>();
     let f = |idx: usize| parts[idx].chars().next().unwrap() as usize - 'A' as usize;
     Edge(f(1), f(7))
-}
-
-#[derive(Eq, PartialEq)]
-struct Val<T: Ord>(T);
-
-impl<T: Ord> Ord for Val<T> {
-    fn cmp(&self, other: &Self) -> Ordering {
-        other.0.cmp(&self.0)
-    }
-}
-
-impl<T: Ord> PartialOrd for Val<T> {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-struct MinHeap<T: Ord> {
-    heap: BinaryHeap<Val<T>>
-}
-
-impl<T: Ord> MinHeap<T> {
-    fn new() -> MinHeap<T> {
-        MinHeap { heap: BinaryHeap::<Val<T>>::new() }
-    }
-
-    fn is_empty(&self) -> bool {
-        self.heap.is_empty()
-    }
-
-    fn push(&mut self, item: T) {
-        self.heap.push(Val(item));
-    }
-
-    fn pop(&mut self) -> Option<T> {
-        self.heap.pop().map(|Val(x)| x)
-    }
 }
 
 struct DAG<'a> {
@@ -104,7 +67,7 @@ impl<'a> Iterator for DAG<'a> {
 }
 
 fn main() {
-    let input = fs::read_to_string("input.txt").ok().unwrap();
+    let input = fs::read_to_string("day-07/input.txt").ok().unwrap();
     let edges: Vec<Edge> = input.lines().map(parse).collect();
     let n = edges.iter().map(|Edge(a, b)| a.max(b)).max().unwrap() + 1;
 

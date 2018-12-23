@@ -1,21 +1,13 @@
-use std::collections::HashMap;
 use std::fs;
 
-fn counter<I, T>(iter: I) -> HashMap<T, i32> where
-        I: Iterator<Item=T>, T: std::cmp::Eq, T: std::hash::Hash {
-    let mut h = HashMap::new();
-    for x in iter {
-        *h.entry(x).or_default() += 1;
-    }
-    return h;
-}
+use utils;
 
 fn main() {
-    let input = fs::read_to_string("input.txt").ok().unwrap();  // temporary bound to the scope
+    let input = fs::read_to_string("day-02/input.txt").ok().unwrap();  // temporary bound to the scope
     let strs: Vec<&str> = input.split_terminator("\n").collect();
 
     // Part 1
-    let counts = strs.iter().map(|s| counter(s.chars())).collect::<Vec<_>>();
+    let counts = strs.iter().map(|s| utils::counter(s.chars())).collect::<Vec<_>>();
     let twos = counts.iter().filter(|h| h.iter().any(|(_, &v)| v == 2)).count();
     let threes = counts.iter().filter(|h| h.iter().any(|(_, &v)| v == 3)).count();
     println!("{}", twos * threes);

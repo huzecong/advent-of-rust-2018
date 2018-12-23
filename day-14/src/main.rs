@@ -5,7 +5,7 @@ fn concat(arr: &[usize]) -> String {
 }
 
 fn main() {
-    let input = fs::read_to_string("input.txt").ok().unwrap();
+    let input = fs::read_to_string("day-14/input.txt").ok().unwrap();
     let steps = input.trim().parse::<usize>().ok().unwrap();
     let match_recipe = steps.to_string().chars()
             .map(|x| x.to_digit(10).unwrap() as usize)

@@ -47,7 +47,7 @@ fn sum_value(node: &Node) -> u32 {
 }
 
 fn main() {
-    let input = fs::read_to_string("input.txt").ok().unwrap();
+    let input = fs::read_to_string("day-08/input.txt").ok().unwrap();
     let tree_seq = input.trim()
             .split_whitespace()
             .map(|x| x.parse::<u32>().ok().unwrap())

@@ -35,7 +35,7 @@ fn react(s: &Vec<char>) -> usize {
 }
 
 fn main() {
-    let input = fs::read_to_string("input.txt").ok().unwrap();
+    let input = fs::read_to_string("day-05/input.txt").ok().unwrap();
     let s: Vec<char> = input.trim().chars().collect();
 
     // Part 1

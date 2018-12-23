@@ -1,130 +1,9 @@
 #[macro_use]
-extern crate custom_derive;
+extern crate utils;
 
 use std::fs;
 
-trait PrimitiveEnum: Sized {
-    fn next_enum(&self) -> Option<Self>;
-    fn prev_enum(&self) -> Option<Self>;
-    fn first_enum() -> Self;
-    fn last_enum() -> Self;
-}
-
-// Implementation reference: crate `enum_derive`
-macro_rules! first_enum {
-    (
-        ($name:ident) ($a:ident $($rest:ident)*)
-    ) => {
-        $name::$a
-    };
-}
-
-macro_rules! last_enum {
-    (
-        ($name:ident) ($a:ident $($rest:ident)+)
-    ) => {
-        last_enum! { ($name) ($($rest)*) }
-    };
-
-    (
-        ($name:ident) ($a:ident)
-    ) => {
-        $name::$a
-    };
-}
-
-macro_rules! next_enum {
-    (
-        ($name:ident, $self_:ident) ($($val:ident)*)
-    ) => {
-        next_enum! { @arms ($name, $self_) ($($val)*) -> () }
-    };
-
-    (
-        @arms ($name:ident, $self_:ident) ($a:ident) -> ($($body:tt)*)
-    ) => {
-        match *$self_ {
-            $($body)*
-            $name::$a => ::std::option::Option::None,
-        }
-    };
-
-    (
-        @arms ($name:ident, $self_:ident) ($a:ident $b:ident $($rest:ident)*) -> ($($body:tt)*)
-    ) => {
-        next_enum! {
-            @arms ($name, $self_) ($b $($rest)*) -> (
-                $($body)*
-                $name::$a => ::std::option::Option::Some($name::$b),
-            )
-        }
-    };
-}
-
-
-macro_rules! prev_enum {
-    (
-        ($name:ident, $self_:ident) ($($val:ident)*)
-    ) => {
-        prev_enum! { @arms ($name, $self_) (::std::option::Option::None) ($($val)*) -> () }
-    };
-
-    (
-        @arms ($name:ident, $self_:ident) ($prev:expr) ($a:ident) -> ($($body:tt)*)
-    ) => {
-        match *$self_ {
-            $($body)*
-            $name::$a => $prev,
-        }
-    };
-
-    (
-        @arms ($name:ident, $self_:ident) ($prev:expr) ($a:ident $($rest:ident)+) -> ($($body:tt)*)
-    ) => {
-        prev_enum! {
-            @arms ($name, $self_) (::std::option::Option::Some($name::$a)) ($($rest)*) -> (
-                $($body)*
-                $name::$a => $prev,
-            )
-        }
-    };
-}
-
-macro_rules! PrimitiveEnum {
-    (
-        () pub enum $name:ident { $($val:ident),* }
-    ) => {
-        PrimitiveEnum! { [pub] ($name) ($($val)*) }
-    };
-
-    (
-        () enum $name:ident { $($val:ident),* }
-    ) => {
-        PrimitiveEnum! { [] ($name) ($($val)*) }
-    };
-
-    (
-        [$($pub_:tt)?] ($name:ident) ($($val:ident)*)
-    ) => {
-        $($pub_)? impl PrimitiveEnum for $name {
-            fn next_enum(&self) -> Option<Self> {
-                next_enum! { ($name, self) ($($val)*) }
-            }
-
-            fn prev_enum(&self) -> Option<Self> {
-                prev_enum! { ($name, self) ($($val)*) }
-            }
-
-            fn first_enum() -> Self {
-                first_enum! { ($name) ($($val)*) }
-            }
-
-            fn last_enum() -> Self {
-                last_enum! { ($name) ($($val)*) }
-            }
-        }
-    };
-}
+use utils::PrimitiveEnum;
 
 custom_derive! {
 #[derive(Ord, PartialOrd, Eq, PartialEq, Copy, Clone, PrimitiveEnum)]
@@ -150,30 +29,16 @@ struct Cart {
     turn: Turn,
 }
 
-fn next_enum<E: PrimitiveEnum>(e: &E) -> E {
-    match e.next_enum() {
-        Some(e) => e,
-        None => E::first_enum(),
-    }
-}
-
-fn prev_enum<E: PrimitiveEnum>(e: &E) -> E {
-    match e.prev_enum() {
-        Some(e) => e,
-        None => E::last_enum(),
-    }
-}
-
 fn turn(d: Direction, t: Turn) -> Direction {
     match t {
         Turn::STRAIGHT => d,
-        Turn::LEFT => prev_enum(&d),
-        Turn::RIGHT => next_enum(&d),
+        Turn::LEFT => utils::prev_enum(&d),
+        Turn::RIGHT => utils::next_enum(&d),
     }
 }
 
 fn main() {
-    let input = fs::read_to_string("input.txt").ok().unwrap();
+    let input = fs::read_to_string("day-13/input.txt").ok().unwrap();
     let mut map = input.lines().map(|x| x.chars().collect::<Vec<_>>()).collect::<Vec<_>>();
     let (r, c) = (map.len(), map.first().unwrap().len());
 
@@ -223,7 +88,7 @@ fn main() {
                 _ => d,
             };
             let new_turn = match map[new_point.x][new_point.y] {
-                '+' => next_enum(&t),
+                '+' => utils::next_enum(&t),
                 _ => t,
             };
             for cart in &carts[(i + 1)..] {

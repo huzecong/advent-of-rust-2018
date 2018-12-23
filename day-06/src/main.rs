@@ -61,7 +61,7 @@ fn compute_ways(mut xs: Vec<i32>, max_dist: usize) -> Vec<u32> {
 }
 
 fn main() {
-    let input = fs::read_to_string("input.txt").ok().unwrap();
+    let input = fs::read_to_string("day-06/input.txt").ok().unwrap();
     let p: Vec<Point> = input.lines().map(parse).collect();
     let xs = p.iter().map(|Point(x, _)| *x).collect::<Vec<_>>();
     let ys = p.iter().map(|Point(_, y)| *y).collect::<Vec<_>>();

@@ -87,7 +87,7 @@ fn print(stars: &Vec<Star>) {
 }
 
 fn main() {
-    let input = fs::read_to_string("input.txt").ok().unwrap();
+    let input = fs::read_to_string("day-10/input.txt").ok().unwrap();
     let mut stars = input.lines().map(parse).collect::<Vec<_>>();
 
     // Parts 1 & 2

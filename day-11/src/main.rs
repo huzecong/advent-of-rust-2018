@@ -1,25 +1,13 @@
 use std::fs;
 
+use utils;
+
 fn compute_score(x: usize, y: usize, serial_id: i32) -> i32 {
     (((x + 10) * y + serial_id as usize) * (x + 10) / 100 % 10) as i32 - 5
 }
 
-fn cumsum(arr: &mut Vec<Vec<i32>>, width: usize, height: usize) {
-    for i in 1..width {
-        arr[i][0] += arr[i - 1][0];
-    }
-    for j in 1..height {
-        arr[0][j] += arr[0][j - 1];
-    }
-    for i in 1..width {
-        for j in 1..height {
-            arr[i][j] += arr[i - 1][j] + arr[i][j - 1] - arr[i - 1][j - 1];
-        }
-    }
-}
-
 fn main() {
-    let input = fs::read_to_string("input.txt").ok().unwrap();
+    let input = fs::read_to_string("day-11/input.txt").ok().unwrap();
     let serial_id = input.trim().parse::<i32>().ok().unwrap();
     const SIZE: usize = 300;
 
@@ -34,7 +22,7 @@ fn main() {
             scores[x][y] = compute_score(x, y, serial_id);
         }
     }
-    cumsum(&mut scores, SIZE + 1, SIZE + 1);
+    utils::cumsum(&mut scores, SIZE + 1, SIZE + 1);
 
     let sum_scores = |x: usize, y: usize, w: usize, h: usize| -> i32 {
         scores[x + w - 1][y + h - 1] - scores[x - 1][y + h - 1] - scores[x + w - 1][y - 1] + scores[x - 1][y - 1]

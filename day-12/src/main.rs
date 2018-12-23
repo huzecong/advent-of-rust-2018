@@ -18,7 +18,7 @@ fn main() {
     const M: usize = 120;
     let rounds1 = 20;
 
-    let input = fs::read_to_string("input.txt").ok().unwrap();
+    let input = fs::read_to_string("day-12/input.txt").ok().unwrap();
     let state = input.lines().next().unwrap()
             .split_whitespace().skip(2).next().unwrap();
     let rules = input.lines().skip(2).map(parse).collect::<Vec<_>>();

@@ -1,3 +1,5 @@
+extern crate utils;
+
 use std::fs;
 
 struct Rectange {
@@ -22,22 +24,8 @@ fn parse(s: &str) -> Rectange {
     Rectange { id: id, x: x_y[0], y: x_y[1], w: w_h[0], h: w_h[1] }
 }
 
-fn cumsum(arr: &mut Vec<Vec<i32>>, width: usize, height: usize) {
-    for i in 1..width {
-        arr[i][0] += arr[i - 1][0];
-    }
-    for j in 1..height {
-        arr[0][j] += arr[0][j - 1];
-    }
-    for i in 1..width {
-        for j in 1..height {
-            arr[i][j] += arr[i - 1][j] + arr[i][j - 1] - arr[i - 1][j - 1];
-        }
-    }
-}
-
 fn main() {
-    let input = fs::read_to_string("input.txt").ok().unwrap();  // temporary bound to the scope
+    let input = fs::read_to_string("day-03/input.txt").ok().unwrap();  // temporary bound to the scope
     let rects: Vec<Rectange> = input.split_terminator("\n").map(parse).collect();
 
     // Part 1
@@ -52,7 +40,7 @@ fn main() {
         counts[rect.x][down] -= 1;
         counts[right][down] += 1;
     }
-    cumsum(&mut counts, width, height);
+    utils::cumsum(&mut counts, width, height);
     let mut overlap = 0;
     for i in 0..width {
         for j in 1..height {
@@ -64,7 +52,7 @@ fn main() {
     println!("{}", overlap);
 
     // Part 2
-    cumsum(&mut counts, width, height);
+    utils::cumsum(&mut counts, width, height);
     let get_counts = |x: usize, y: usize| -> i32 {
         if x > 0 && y > 0 {
             counts[x - 1][y - 1]
