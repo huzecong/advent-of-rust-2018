@@ -4,7 +4,7 @@ Finally one that involves a bit of algorithms. The two parts are basically the s
 
 When two units react, they create an opportunity for the units adjacent to them to react. Besides this, the reaction creates no impacts. This means that reactions could happen in any order, and any order would lead to the optimal solution.
 
-Given this observation, a naïve approach is to iteratively scan the string from left to right, removing every pair that could react along the way. In the worst case, for a string of length $n$, $O(n)$ passes are required, yielding time complexity of $O(n^2)$. It takes about 5 seconds to run the first task on my computer, and should work for the second task, but we could do it faster.
+Given this observation, a naïve approach is to iteratively scan the string from left to right, removing every pair that could react along the way. In the worst case, for a string of length `n`, `O(n)` passes are required, yielding time complexity of `O(n^2)`. It takes about 5 seconds to run the first task on my computer, and should work for the second task, but we could do it faster.
 
 In the faster algorithm, we still scan from left to right, but now we keep two pointers that point to the potential left and right units. When they react, we move the left pointer to the left, and the right pointer to the right, and check whether these adjacent units can react. If they can, repeatedly react until the adjacent units cannot, or we have reached the boundaries. Then, move both pointers to the right of the current right pointer, and continue scanning.
 
