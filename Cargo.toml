@@ -17,6 +17,7 @@ members = [
 	"day-15",
 	"day-16",
 	"day-17",
+	"day-19",
 	"day-21",
 	"day-25",
 	"utils",
