@@ -1,5 +1,11 @@
 [package]
-name = "day-01"
+name = "day-22"
 version = "0.1.0"
 authors = ["huzecong <huzecong@gmail.com>"]
 edition = "2018"
+
+[dependencies]
+utils = { path = "../utils" }
+custom_derive = "0.1.7"
+enum_derive = "0.1.7"
+
